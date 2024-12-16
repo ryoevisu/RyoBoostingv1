@@ -11,83 +11,75 @@
     <style>
         body { 
             font-family: 'Poppins', sans-serif; 
-            max-width: 100%;
-            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        .mobile-scrollable-container {
-            max-height: 50vh;
-            overflow-y: auto;
-        }
-        .long-text-ellipsis {
+        .long-text-truncate {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 100%;
         }
-        @media (max-width: 768px) {
+        @media (max-width: 640px) {
             .responsive-card {
                 width: 100%;
-                margin: 0.5rem 0;
+                margin: 0;
+                border-radius: 0;
             }
-            .btn-responsive {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-            .navbar {
+            .mobile-flex-col {
                 flex-direction: column;
-                align-items: center;
-                padding: 0.5rem;
             }
-            .navbar .flex-1, .navbar .flex-none {
-                margin: 0.25rem 0;
+            .mobile-full-width {
+                width: 100%;
+            }
+            .mobile-text-sm {
+                font-size: 0.875rem;
             }
         }
     </style>
 </head>
-<body class="min-h-screen bg-base-200">
+<body class="bg-base-200 flex-1">
     <!-- Navbar -->
-    <div class="navbar bg-base-100 shadow-lg">
-        <div class="flex-1">
-            <a class="btn btn-ghost text-base sm:text-xl">
-                <i data-feather="zap" class="w-5 h-5 sm:w-6 sm:h-6 mr-2"></i>
+    <div class="navbar bg-base-100 shadow-lg sticky top-0 z-50">
+        <div class="navbar-start">
+            <a class="btn btn-ghost text-xl">
+                <i data-feather="zap" class="w-6 h-6 mr-2"></i>
                 RYOBOOSTING
             </a>
         </div>
-        <div class="flex-none">
-            <button class="btn btn-ghost btn-sm" onclick="toggleTheme()">
-                <i data-feather="moon" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        <div class="navbar-end">
+            <button class="btn btn-ghost" onclick="toggleTheme()">
+                <i data-feather="moon" class="w-5 h-5"></i>
             </button>
         </div>
     </div>
 
-    <div class="container mx-auto p-2 sm:p-4">
+    <div class="container mx-auto px-4 py-6 space-y-6">
         <!-- Share Form -->
         <div class="card bg-base-100 shadow-xl responsive-card">
             <div class="card-body">
-                <h2 class="card-title text-base sm:text-lg">
-                    <i data-feather="share-2" class="w-5 h-5 sm:w-6 sm:h-6"></i> 
-                    Start Share Process
-                </h2>
-                <form id="shareForm" class="space-y-3 sm:space-y-4">
+                <h2 class="card-title"><i data-feather="share-2" class="w-6 h-6"></i> Start Share Process</h2>
+                <form id="shareForm" class="space-y-4">
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Cookies</span>
                         </label>
-                        <textarea class="textarea textarea-bordered text-sm" id="cookies" rows="3"></textarea>
+                        <textarea class="textarea textarea-bordered resize-y" id="cookies" rows="3" placeholder="Enter cookies"></textarea>
                     </div>
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Post Link</span>
                         </label>
-                        <input type="text" id="postLink" class="input input-bordered input-sm text-sm long-text-ellipsis">
+                        <input type="text" id="postLink" class="input input-bordered" placeholder="Paste your post link here">
                     </div>
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">Share Count</span>
                         </label>
-                        <input type="number" id="shareCount" class="input input-bordered input-sm text-sm">
+                        <input type="number" id="shareCount" class="input input-bordered" placeholder="Number of shares" min="1">
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm w-full btn-responsive">
+                    <button type="submit" class="btn btn-primary w-full">
                         <i data-feather="play" class="w-4 h-4 mr-2"></i>
                         Start Share
                     </button>
@@ -96,44 +88,47 @@
         </div>
 
         <!-- Active Processes -->
-        <div class="card bg-base-100 shadow-xl mt-4 responsive-card">
+        <div class="card bg-base-100 shadow-xl responsive-card">
             <div class="card-body">
-                <h2 class="card-title text-base sm:text-lg">
-                    <i data-feather="activity" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                <h2 class="card-title">
+                    <i data-feather="activity" class="w-6 h-6"></i>
                     Active Processes
                 </h2>
-                <div id="activeProcesses" class="space-y-3 mobile-scrollable-container"></div>
+                <div id="activeProcesses" class="space-y-4"></div>
+                <div id="noProcesses" class="text-center text-gray-500 py-4 hidden">
+                    No active processes
+                </div>
             </div>
         </div>
 
         <!-- Logs -->
-        <div class="card bg-base-100 shadow-xl mt-4 responsive-card">
+        <div class="card bg-base-100 shadow-xl responsive-card">
             <div class="card-body">
                 <div class="flex justify-between items-center">
-                    <h2 class="card-title text-base sm:text-lg">
-                        <i data-feather="list" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    <h2 class="card-title">
+                        <i data-feather="list" class="w-6 h-6"></i>
                         Logs
                     </h2>
-                    <button class="btn btn-xs btn-ghost" onclick="clearLogs()">
-                        <i data-feather="trash-2" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                    <button class="btn btn-sm btn-ghost" onclick="clearLogs()">
+                        <i data-feather="trash-2" class="w-4 h-4"></i>
                         Clear
                     </button>
                 </div>
-                <div id="logs" class="mt-2 space-y-1 h-48 sm:h-64 overflow-y-auto text-xs sm:text-sm"></div>
+                <div id="logs" class="mt-4 space-y-2 h-64 overflow-y-auto"></div>
             </div>
         </div>
     </div>
 
     <!-- Admin Password Modal -->
     <dialog id="adminModal" class="modal">
-        <div class="modal-box w-11/12 max-w-sm">
-            <h3 class="font-bold text-base sm:text-lg">Admin Authentication Required</h3>
-            <div class="form-control mt-2 sm:mt-4">
-                <input type="password" id="adminPassword" class="input input-bordered input-sm" placeholder="Enter admin password">
+        <div class="modal-box w-11/12 max-w-5xl">
+            <h3 class="font-bold text-lg">Admin Authentication Required</h3>
+            <div class="form-control mt-4">
+                <input type="password" id="adminPassword" class="input input-bordered" placeholder="Enter admin password">
             </div>
             <div class="modal-action">
-                <button class="btn btn-error btn-sm" onclick="closeAdminModal()">Cancel</button>
-                <button class="btn btn-primary btn-sm" onclick="confirmAdminAction()">Confirm</button>
+                <button class="btn btn-error" onclick="closeAdminModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmAdminAction()">Confirm</button>
             </div>
         </div>
     </dialog>
@@ -147,14 +142,34 @@
             const html = document.querySelector('html');
             const currentTheme = html.getAttribute('data-theme');
             html.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+            // Optional: Store theme preference in localStorage
+            localStorage.setItem('theme', currentTheme === 'dark' ? 'light' : 'dark');
         }
+
+        // Restore theme on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.querySelector('html').setAttribute('data-theme', savedTheme);
+            }
+        });
 
         async function startShare(event) {
             event.preventDefault();
+            const cookies = document.getElementById('cookies').value.trim();
+            const postLink = document.getElementById('postLink').value.trim();
+            const shareCount = document.getElementById('shareCount').value;
+
+            // Validate inputs
+            if (!cookies || !postLink || !shareCount) {
+                alert('Please fill in all fields');
+                return;
+            }
+
             const data = {
-                cookies: document.getElementById('cookies').value,
-                post_link: document.getElementById('postLink').value,
-                share_count: parseInt(document.getElementById('shareCount').value)
+                cookies: cookies,
+                post_link: postLink,
+                share_count: parseInt(shareCount)
             };
 
             try {
@@ -165,9 +180,11 @@
                 });
                 const result = await response.json();
                 updateProcesses();
+                // Reset form
+                document.getElementById('shareForm').reset();
             } catch (error) {
                 console.error('Error:', error);
-                alert('Failed to start share process. Please check your inputs and connection.');
+                alert('Failed to start share process');
             }
         }
 
@@ -184,6 +201,7 @@
         function closeAdminModal() {
             document.getElementById('adminModal').close();
             pendingAction = null;
+            document.getElementById('adminPassword').value = '';
         }
 
         async function confirmAdminAction() {
@@ -205,7 +223,7 @@
                 closeAdminModal();
             } catch (error) {
                 console.error('Error:', error);
-                alert('Failed to perform action. Please check your password and connection.');
+                alert('Action failed. Please check your password.');
             }
         }
 
@@ -214,29 +232,40 @@
                 const response = await fetch(`${API_URL}/active_processes`);
                 const processes = await response.json();
                 const container = document.getElementById('activeProcesses');
+                const noProcessesElement = document.getElementById('noProcesses');
                 container.innerHTML = '';
+
+                if (Object.keys(processes).length === 0) {
+                    noProcessesElement.classList.remove('hidden');
+                } else {
+                    noProcessesElement.classList.add('hidden');
+                }
 
                 for (const [id, process] of Object.entries(processes)) {
                     const processElement = document.createElement('div');
                     processElement.className = 'card bg-base-200';
                     processElement.innerHTML = `
-                        <div class="card-body p-3">
-                            <div class="flex justify-between items-center">
-                                <div class="flex-grow mr-2">
-                                    <h3 class="font-semibold text-xs sm:text-sm">Process ID: ${id.substr(0, 8)}</h3>
-                                    <p class="text-xs sm:text-sm long-text-ellipsis">Post: ${process.post_link}</p>
-                                    <div class="mt-1">
-                                        <progress class="progress progress-primary w-full sm:w-56" 
-                                                value="${process.progress}" max="100"></progress>
-                                        <span class="text-xs">${process.current_count}/${process.share_count}</span>
+                        <div class="card-body">
+                            <div class="flex mobile-flex-col justify-between items-center">
+                                <div class="w-full">
+                                    <h3 class="font-semibold mobile-text-sm">Process ID: ${id.substr(0, 8)}</h3>
+                                    <p class="text-sm long-text-truncate" title="${process.post_link}">
+                                        Post: ${process.post_link}
+                                    </p>
+                                    <div class="mt-2 w-full">
+                                        <div class="flex items-center space-x-2">
+                                            <progress class="progress progress-primary flex-1" 
+                                                    value="${process.progress}" max="100"></progress>
+                                            <span class="text-sm mobile-text-sm">${process.current_count}/${process.share_count}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="flex flex-col space-y-1">
-                                    <button class="btn btn-xs btn-warning" onclick="stopProcess('${id}')">
-                                        <i data-feather="pause" class="w-3 h-3"></i>
+                                <div class="flex space-x-2 mt-2 mobile-full-width">
+                                    <button class="btn btn-sm btn-warning flex-1" onclick="stopProcess('${id}')">
+                                        <i data-feather="pause" class="w-4 h-4"></i>
                                     </button>
-                                    <button class="btn btn-xs btn-error" onclick="deleteProcess('${id}')">
-                                        <i data-feather="trash" class="w-3 h-3"></i>
+                                    <button class="btn btn-sm btn-error flex-1" onclick="deleteProcess('${id}')">
+                                        <i data-feather="trash" class="w-4 h-4"></i>
                                     </button>
                                 </div>
                             </div>
@@ -255,10 +284,11 @@
                 const response = await fetch(`${API_URL}/get_logs`);
                 const logs = await response.json();
                 const container = document.getElementById('logs');
-                container.innerHTML = ''; // Clear previous logs
+                // Clear existing logs before adding new ones
+                container.innerHTML = '';
                 logs.forEach(log => {
                     const logElement = document.createElement('div');
-                    logElement.className = 'text-xs sm:text-sm';
+                    logElement.className = 'text-sm break-words';
                     logElement.textContent = log;
                     container.appendChild(logElement);
                 });
@@ -277,9 +307,16 @@
             }
         }
 
+        // Event Listeners
         document.getElementById('shareForm').addEventListener('submit', startShare);
+        
+        // Periodic updates
         setInterval(updateProcesses, 1000);
         setInterval(updateLogs, 1000);
+
+        // Initial load
+        updateProcesses();
+        updateLogs();
     </script>
 </body>
 </html>
